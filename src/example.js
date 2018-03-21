@@ -66,7 +66,7 @@ var Listener = new ScriptListener(){
         }
     },
     getEventClass: function () {
-        return Java.tpye('org.bukkit.event.entity.EntityDamageByEntityEvent');
+        return Java.type('org.bukkit.event.entity.EntityDamageByEntityEvent').class;
     }
 }
 function getGem() {
