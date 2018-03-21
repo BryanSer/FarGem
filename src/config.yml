@@ -1,0 +1,3 @@
+InstallPrefix:
+    #宝石安装在物品上的时候显示的分隔线
+    Value: '§6§m§l                       §e§l宝石镶嵌§6§m§l                       '
