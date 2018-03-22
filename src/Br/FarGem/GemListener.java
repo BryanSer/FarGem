@@ -12,6 +12,7 @@ import java.util.Map;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -35,11 +36,11 @@ public class GemListener implements Listener {
         if (TempDatas.containsKey(evt.getPlayer().getName())) {
             Tools.GemInfo td = TempDatas.get(evt.getPlayer().getName());
             evt.getPlayer().getInventory().addItem(new ItemStack[]{td.getGem().getGem(td.getLevel())});
-            this.TempDatas.remove(evt.getPlayer().getName());
+            GemListener.TempDatas.remove(evt.getPlayer().getName());
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInstall(PlayerInteractEvent evt) {
         if (!TempDatas.containsKey(evt.getPlayer().getName())) {
             return;
@@ -75,7 +76,7 @@ public class GemListener implements Listener {
         evt.getPlayer().sendMessage("§6已成功镶嵌" + gi.getGem().getDisplayName());
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onRightClickGem(PlayerInteractEvent evt) {
         if (TempDatas.containsKey(evt.getPlayer().getName())) {
             return;
@@ -90,6 +91,7 @@ public class GemListener implements Listener {
         if (evt.getAction().name().contains("LEFT")) {
             ItemStack result = Tools.updateItem(evt.getItem());
             if (result != null) {
+                evt.setCancelled(true);
                 evt.getPlayer().setItemInHand(result);
             }
             return;
