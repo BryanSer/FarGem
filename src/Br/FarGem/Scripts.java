@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.script.ScriptException;
+import org.bukkit.Bukkit;
 
 /**
  *
@@ -40,6 +41,10 @@ public class Scripts {
                     t.eval(new FileReader(f));
                     Gem gem = (Gem) t.invokeFunction("getGem", new Object[]{});
                     ScriptListener sl[] = (ScriptListener[]) t.invokeFunction("getListener", new Object[]{});
+                    if (gem instanceof GemRunnable) {
+                        GemRunnable gr = (GemRunnable) gem;
+                        Bukkit.getScheduler().runTaskTimer(p, gr::run, gr.delay(), gr.interval());
+                    }
                     Data.LoadGemData(gem);
                     for (ScriptListener l : sl) {
                         ScriptListenerManager.RegisterListener(p, l);

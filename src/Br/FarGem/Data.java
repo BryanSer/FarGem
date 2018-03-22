@@ -29,6 +29,11 @@ public class Data {
 
     public static String InstallPrefix_Value;
 
+    /**
+     * 通过名字寻找某宝石
+     * @param name
+     * @return
+     */
     public static Gem getGem(String name) {
         return GemIDMap.get(Identifiers.get(name));
     }
@@ -47,6 +52,10 @@ public class Data {
         InstallPrefix_Value = ChatColor.translateAlternateColorCodes('&', config.getString("InstallPrefix.Value"));
     }
 
+    /**
+     * 加载宝石配置(建议不要使用 本框架会自动调用)
+     * @param g
+     */
     public static void LoadGemData(Gem g) {
         if (g.getConfigs() == null) {
             return;
