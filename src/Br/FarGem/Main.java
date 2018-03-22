@@ -28,9 +28,49 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         Data.init(this);
-        Scripts.LoadScripts(this);
         Bukkit.getPluginManager().registerEvents(new GemListener(), this);
-        Main.log = Br.API.Log.CombineOldLog(this, 30);
+        Main.log = Br.API.Log.CombineOldLog(this, 1);
+        Bukkit.getScheduler().runTaskTimer(this, this::ScanAllPlayer, 100, 12000);
+    }
+
+    @Override
+    public void onDisable() {
+        log.Save();
+    }
+
+    public void ScanAllPlayer() {
+        for (Player p : Utils.getOnlinePlayers()) {
+            PlayerInventory inv = p.getInventory();
+            for (int i = 0; i < inv.getSize(); i++) {
+                ItemStack is = inv.getItem(i);
+                if (is == null) {
+                    continue;
+                }
+                ItemStack r = Tools.updateFromOldVwrsion(is);
+                if (r == null) {
+                    r = Tools.updateItem(is);
+                }
+                if (r != null) {
+                    inv.setItem(i, r);
+                }
+            }
+            ItemStack[] a = inv.getArmorContents();
+            for (int i = 0; i < a.length; i++) {
+                ItemStack is = a[i];
+                if (is == null) {
+                    continue;
+                }
+                ItemStack r = Tools.updateFromOldVwrsion(is);
+                if (r == null) {
+                    r = Tools.updateItem(is);
+                }
+                if (r != null) {
+                    a[i] = r;
+                }
+            }
+            inv.setArmorContents(a);
+            p.updateInventory();
+        }
     }
 
     @Override
@@ -87,6 +127,37 @@ public class Main extends JavaPlugin {
                 }
             }
             sender.sendMessage("§6宝石已发送到背包");
+            return true;
+        }
+        if (args[0].equalsIgnoreCase("update") && (sender instanceof Player)) {
+            Player p = (Player) sender;
+            PlayerInventory inv = p.getInventory();
+            for (int i = 0; i < inv.getSize(); i++) {
+                ItemStack is = inv.getItem(i);
+                if (is == null) {
+                    continue;
+                }
+                is = Tools.updateFromOldVwrsion(is);
+                if (is == null) {
+                    continue;
+                }
+                inv.setItem(i, is);
+            }
+            ItemStack[] a = inv.getArmorContents();
+            for (int i = 0; i < a.length; i++) {
+                ItemStack is = a[i];
+                if (is == null) {
+                    continue;
+                }
+                is = Tools.updateFromOldVwrsion(is);
+                if (is == null) {
+                    continue;
+                }
+                a[i] = is;
+            }
+            inv.setArmorContents(a);
+            p.updateInventory();
+            p.sendMessage("§6更新已完成");
             return true;
         }
         return true;

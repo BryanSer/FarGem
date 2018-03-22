@@ -57,12 +57,6 @@ public class Tools {
         GET_AND_SAVE_DEFAULT;
     }
 
-    /**
-     * 返回文件
-     * @param create
-     * @param s
-     * @return
-     */
     public static File getFile(FileType create, String... s) {
         StringBuilder url = new StringBuilder();
         if (s.length == 0) {
@@ -98,11 +92,6 @@ public class Tools {
         return f;
     }
 
-    /**
-     * 去除颜色代码
-     * @param s
-     * @return
-     */
     public static String encodeColorCode(String s) {
         char[] c = s.toCharArray();
         StringBuilder v = new StringBuilder();
@@ -136,20 +125,10 @@ public class Tools {
         return null;
     }
 
-    /**
-     * 加上颜色代码
-     * @param s
-     * @return
-     */
     public static String decodeColorCode(String s) {
         return s.replaceAll("§", "");
     }
 
-    /**
-     * 获取宝石物品的信息
-     * @param is
-     * @return null时为该物品不是宝石
-     */
     public static GemInfo getGemInfo(ItemStack is) {
         if (!is.hasItemMeta() || !is.getItemMeta().hasLore()) {
             return null;
@@ -178,9 +157,6 @@ public class Tools {
         return null;
     }
 
-    /**
-     * 宝石物品信息
-     */
     public static class GemInfo {
 
         private Gem gem;
@@ -191,29 +167,105 @@ public class Tools {
             this.level = lv;
         }
 
-        /**
-         * 返回该物品对应的宝石对象
-         * @return 
-         */
         public Gem getGem() {
             return gem;
         }
 
-        /**
-         * 返回等级
-         * @return
-         */
         public int getLevel() {
             return level;
         }
 
     }
+    @Deprecated
+    private final static Map<String, String> OLD_EquitCode = new HashMap<>();
+    @Deprecated
+    private final static Map<String, String> OLD_GemCode = new HashMap<>();
+    @Deprecated
+    private final static String UniversalCode = "§r§s§r";
 
-    /**
-     * 对一个物品更新上面宝石的Lore
-     * @param is
-     * @return 更新后的物品 返回null表示没有发生改变
-     */
+    static {
+        OLD_GemCode.put("§r§b§s§r§l§b§s§r", "AttackGem");
+        OLD_GemCode.put("§r§b§s§r§f§y§s§r", "SidestepGem");
+        OLD_GemCode.put("§r§b§s§r§j§l§s", "FireGem");
+        OLD_GemCode.put("§r§b§s§r§q§c§s§r", "ArmorGem");
+        OLD_GemCode.put("§r§b§s§r§x§x§s§r", "VampireGem");
+        OLD_GemCode.put("§r§b§s§r§b§x§s§r", "CritGem");
+        OLD_GemCode.put("§r§b§s§r§w§x§s§r", "WitherGem");
+        OLD_GemCode.put("§r§b§s§r§k§l§s§r", "LightningGem");
+        OLD_GemCode.put("§r§b§s§r§y§q§s§r", "DiffusionGem");
+        OLD_GemCode.put("§r§b§s§f§j§s§r", "HealthGem");
+        OLD_GemCode.put("§r§b§s§r§h§s§s§r", "FlashGem");
+        OLD_GemCode.put("§r§b§s§r§f§x§s§r", "UnbreakableGem");
+        OLD_GemCode.put("§r§b§s§r§y§m§z§r", "VisionGem");
+        OLD_GemCode.put("§r§b§s§s§f§s§r", "WindGem");
+        OLD_GemCode.put("§r§b§s§q§f§s§r", "SlowGem");
+        OLD_GemCode.put("§r§b§s§r§x§z§s§r", "BuffGem");
+        OLD_EquitCode.put("§r§z§b§r§l§b§s§r", "AttackGem");
+        OLD_EquitCode.put("§r§z§b§r§f§y§s§r", "SidestepGem");
+        OLD_EquitCode.put("§r§z§b§r§j§l§s§r", "FireGem");
+        OLD_EquitCode.put("§r§z§b§r§q§c§s§r", "ArmorGem");
+        OLD_EquitCode.put("§r§z§b§r§x§x§s§r", "VampireGem");
+        OLD_EquitCode.put("§r§z§b§r§b§x§s§r", "CritGem");
+        OLD_EquitCode.put("§r§z§b§r§w§x§s§r", "WitherGem");
+        OLD_EquitCode.put("§r§z§b§r§k§l§s§r", "LightningGem");
+        OLD_EquitCode.put("§r§z§b§r§y§q§s§r", "DiffusionGem");
+        OLD_EquitCode.put("§r§z§b§r§f§j§s§r", "HealthGem");
+        OLD_EquitCode.put("§r§z§b§r§h§s§s§r", "FlashGem");
+        OLD_EquitCode.put("§r§z§b§r§f§x§s§r", "UnbreakableGem");
+        OLD_EquitCode.put("§r§z§b§r§y§m§z§r", "VisionGem");
+        OLD_EquitCode.put("§r§z§b§s§f§s§r", "WindGem");
+        OLD_EquitCode.put("§r§z§q§s§f§s§r", "SlowGem");
+        OLD_EquitCode.put("§r§z§b§r§x§z§s§r", "BuffGem");
+    }
+
+    @Deprecated
+    public static ItemStack updateFromOldVwrsion(ItemStack is) {
+        if (is == null || !is.hasItemMeta() || !is.getItemMeta().hasLore()) {
+            return null;
+        }
+        ItemMeta im = is.getItemMeta();
+        im.spigot().setUnbreakable(true);
+        if (im.hasDisplayName() && im.getDisplayName().contains(Tools.UniversalCode)) {
+            String s = im.getDisplayName();
+            for (Map.Entry<String, String> e : OLD_GemCode.entrySet()) {
+                if (s.startsWith(e.getKey())) {
+                    Gem g = Data.getGem(e.getValue());
+                    if (g != null) {
+                        String vaule = s.split(Tools.UniversalCode)[0].split(e.getKey() + "§")[1];
+                        int level = Integer.parseInt(vaule);
+                        return g.getGem(level);
+                    }
+                    return null;
+                }
+            }
+        } else {
+            is = is.clone();
+            List<String> lore = im.getLore();
+            boolean edit = false;
+            for (int i = 0; i < lore.size(); i++) {
+                String s = lore.get(i);
+                if (s.contains(Tools.UniversalCode)) {
+                    for (Map.Entry<String, String> e : OLD_EquitCode.entrySet()) {
+                        if (s.startsWith(e.getKey())) {
+                            Gem g = Data.getGem(e.getValue());
+                            String vaule = s.split(Tools.UniversalCode)[0].replaceAll(e.getKey() + "§", "");
+                            int level = Integer.parseInt(vaule);
+                            lore.set(i, g.getEquipDisplayLore(level));
+                            edit = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(edit){
+                im.setLore(lore);
+                is.setItemMeta(im);
+                return is;
+            }
+        }
+        return null;
+    }
+
     public static ItemStack updateItem(ItemStack is) {
         if (is == null || !is.hasItemMeta() || !is.getItemMeta().hasLore()) {
             return null;

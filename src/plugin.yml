@@ -28,6 +28,7 @@ commands:
     aliases: [fg]
     description: 主命令
     usage: |
+        §6/<command> update >> 更新背包里的全部物品到新版本
         §c/<command> give [玩家名] [宝石名] [等级] >> 给予玩家一个宝石
         §c/<command> all >> 显示全部的宝石
         §c/<command> reload >> 重载全部配置文件

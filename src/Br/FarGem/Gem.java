@@ -28,12 +28,6 @@ public abstract class Gem implements Listener {
     private int ID;
     protected int MaxLevel;
 
-    /**
-     *
-     * @param name 宝石的内部名
-     * @param displayName 宝石的显示名(当没有实现GemDisplay接口时使用这个名)
-     * @param maxlv 宝石支持的最大等级
-     */
     public Gem(String name, String displayName, int maxlv) {
         this.Name = name;
         this.DisplayName = displayName;
@@ -42,65 +36,28 @@ public abstract class Gem implements Listener {
         Data.GemIDMap.put(this.ID, this);
     }
 
-    /**
-     * 返回宝石安装在装备上后显示的Lore(只有一行)
-     * @param lv
-     * @return
-     */
     public abstract String getDisplayLore(int lv);
 
-    /**
-     * 返回宝石的配置对象数组
-     * @return
-     */
     public abstract Config<Object>[] getConfigs();
 
-    /**
-     * 检查该装备是否能安装此宝石
-     * @param is
-     * @return true为能安装
-     */
     public abstract boolean canInstall(ItemStack is);
 
-    /**
-     * 返回宝石的最大等级
-     * @return 最大等级
-     */
     public int getMaxLevel() {
         return MaxLevel;
     }
 
-    /**
-     * 返回宝石的识别码
-     * @return 识别码
-     */
     public final int getIdentifier() {
         return this.ID;
     }
 
-    /**
-     * 返回宝石名
-     * @return 宝石名
-     */
     public String getName() {
         return Name;
     }
 
-    /**
-     * 返回宝石的显示名<br>
-     * <s>注意 该方法只有在没有实现GemDisplay接口时对宝石的样式有影响</s>
-     * @see GemDisplay
-     * @return
-     */
     public String getDisplayName() {
         return DisplayName;
     }
 
-    /**
-     * 返回指定等级的宝石物品
-     * @param level 指定等级
-     * @return 宝石物品
-     */
     public ItemStack getGem(int level) {
         if (level < 1 || level > this.getMaxLevel()) {
             return null;
@@ -108,7 +65,7 @@ public abstract class Gem implements Listener {
         ItemStack is = null;
         if (this instanceof GemDisplay) {
             GemDisplay gp = (GemDisplay) this;
-            is = new ItemStack(gp.getType(level), 1, (short) gp.getDurability(level));
+            is = new ItemStack(gp.getType(level), 1, gp.getDurability(level));
             ItemMeta im = is.getItemMeta();
             im.setDisplayName(gp.getDisplayName(level));
             im.setLore(gp.getLore(level));
@@ -127,12 +84,6 @@ public abstract class Gem implements Listener {
         return is;
     }
 
-    /**
-     * 安装宝石
-     * @param is
-     * @param level
-     * @return
-     */
     public final ItemStack Install(ItemStack is, int level) {
         if (level < 1 || level > this.getMaxLevel() || is == null) {
             return null;
@@ -197,29 +148,14 @@ public abstract class Gem implements Listener {
         return is;
     }
 
-    /**
-     * 返回宝石(非安装后的装备)的识别Lore
-     * @param lv
-     * @return 识别Lore
-     */
     public final String getGemDisplayLore(int lv) {
         return Tools.encodeColorCode(Tools.IdentifierPrefix + this.getIdentifier() + "|Gem|" + lv + Tools.IdentifierSuffix) + getDisplayLore(lv);
     }
 
-    /**
-     * 返回安装宝石之后的装备识别Lore
-     * @param lv
-     * @return 识别Lore
-     */
     public final String getEquipDisplayLore(int lv) {
         return Tools.encodeColorCode(Tools.IdentifierPrefix + this.getIdentifier() + "|Equip|" + lv + Tools.IdentifierSuffix) + getDisplayLore(lv);
     }
 
-    /**
-     * 通过物品查询安装的宝石等级
-     * @param is 物品
-     * @return 等级
-     */
     public final int getEquipLevel(ItemStack is) {
         if (is == null) {
             return 0;
@@ -247,7 +183,6 @@ public abstract class Gem implements Listener {
     }
 
     /**
-     * 已弃用 Tools类里有静态方法getGemInfo(ItemStack)代替
      * @see Tools#getGemInfo
      * @param is
      * @return
@@ -278,30 +213,23 @@ public abstract class Gem implements Listener {
     }
 
     /**
-     * 形式注册方法 脚本定义请勿调用
+     * 形式注册方法
      */
     public final void Register() {
         Bukkit.getPluginManager().registerEvents(this, Data.Plugin);
         Data.LoadGemData(this);
+        if(this instanceof GemRunnable){
+            GemRunnable gr = (GemRunnable) this;
+            Bukkit.getScheduler().runTaskTimer(Data.Plugin, gr::run, gr.delay(), gr.interval());
+        }
     }
 
-    /**
-     * 宝石的配置类<p>
-     * 一个宝石里可以有多个配置对象
-     * @param <V>
-     */
     public static class Config<V extends Object> {
 
         private Function<Integer, V> Values;
         private final boolean needLevel;
         private final String Name;
 
-        /**
-         * 
-         * @param Name 配置名(在config中的锚点 不允许带'.')
-         * @param Values 通过给定的等级返回指定的值
-         * @param needLevel 是否区分等级 若为false将不会有多个等级的配置存在
-         */
         public Config(String Name, Function<Integer, V> Values, boolean needLevel) {
             this.Values = Values;
             this.needLevel = needLevel;
@@ -312,21 +240,10 @@ public abstract class Gem implements Listener {
             this.Values = f;
         }
 
-        /**
-         * 返回指定等级的值
-         * @param lv
-         * @return
-         */
         public V getValue(int lv) {
             return Values.apply(lv);
         }
 
-        /**
-         * 返回值<p>
-         * <s>只有在needLevel == true时有用</s>
-         * @see Config
-         * @return
-         */
         public V getValue() {
             if (needLevel) {
                 throw new UnsupportedOperationException();

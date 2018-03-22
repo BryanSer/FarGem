@@ -11,20 +11,9 @@ package Br.FarGem;
  */
 public interface GemRunnable {
 
-    /**
-     * 每次运行时将调用该方法
-     */
     public void run();
 
-    /**
-     * 运行间隔
-     * @return
-     */
     public long interval();
 
-    /**
-     * 运行延迟
-     * @return
-     */
     public long delay();
 }
