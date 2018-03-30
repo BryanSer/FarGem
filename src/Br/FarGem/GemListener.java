@@ -26,8 +26,8 @@ import org.bukkit.inventory.ItemStack;
 public class GemListener implements Listener {
 
     private static Map<String, Tools.GemInfo> TempDatas = new HashMap<>();
-    
-    public static boolean isInstalling(Player p){
+
+    public static boolean isInstalling(Player p) {
         return TempDatas.containsKey(p.getName());
     }
 
@@ -76,16 +76,12 @@ public class GemListener implements Listener {
         evt.getPlayer().sendMessage("§6已成功镶嵌" + gi.getGem().getDisplayName());
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler
     public void onRightClickGem(PlayerInteractEvent evt) {
         if (TempDatas.containsKey(evt.getPlayer().getName())) {
             return;
         }
         if (!evt.hasItem()) {
-            return;
-        }
-        if (this.hasItemOff(evt.getPlayer())) {
-            evt.getPlayer().sendMessage("§6镶嵌宝石的时候 副手不能有东西哦");
             return;
         }
         if (evt.getAction().name().contains("LEFT")) {
@@ -104,6 +100,10 @@ public class GemListener implements Listener {
         if (gi == null) {
             return;
         }
+        if (this.hasItemOff(evt.getPlayer())) {
+            evt.getPlayer().sendMessage("§6镶嵌宝石的时候 副手不能有东西哦");
+            return;
+        }
         evt.setCancelled(true);
         evt.getPlayer().sendMessage("§6请再右键你要镶嵌的武器");
         TempDatas.put(evt.getPlayer().getName(), gi);
@@ -116,6 +116,10 @@ public class GemListener implements Listener {
     }
 
     public boolean hasItemOff(Player p) {
-        return !(p.getInventory().getItemInOffHand() == null || p.getInventory().getItemInOffHand().getType() == Material.AIR || p.getInventory().getItemInOffHand().getAmount() == 0);
+        try {
+            return !(p.getInventory().getItemInOffHand() == null || p.getInventory().getItemInOffHand().getType() == Material.AIR || p.getInventory().getItemInOffHand().getAmount() == 0);
+        } catch (Throwable e) {
+            return p.getItemInHand() != null;
+        }
     }
 }
