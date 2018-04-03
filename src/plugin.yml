@@ -21,7 +21,7 @@ name: FarGem
 authors: ['Bryan_lzh']
 main: Br.FarGem.Main
 depend: [BrAPI]
-version: 1.0
+version: 1.1
 
 commands:
   FarGem:
@@ -29,5 +29,7 @@ commands:
     description: 主命令
     usage: |
         §c/<command> give [玩家名] [宝石名] [等级] >> 给予玩家一个宝石
+                §b宝石名可以是remover 或uninstaller
+                      §a用于移除或卸除宝石
         §c/<command> all >> 显示全部的宝石
         §c/<command> reload >> 重载全部配置文件

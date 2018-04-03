@@ -9,9 +9,9 @@ package Br.FarGem;
 import Br.API.Utils;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,6 +59,7 @@ public class Tools {
 
     /**
      * 返回文件
+     *
      * @param create
      * @param s
      * @return
@@ -99,7 +100,8 @@ public class Tools {
     }
 
     /**
-     * 去除颜色代码
+     * 加上颜色代码
+     *
      * @param s
      * @return
      */
@@ -137,7 +139,8 @@ public class Tools {
     }
 
     /**
-     * 加上颜色代码
+     * 去除颜色代码
+     *
      * @param s
      * @return
      */
@@ -147,6 +150,7 @@ public class Tools {
 
     /**
      * 获取宝石物品的信息
+     *
      * @param is
      * @return null时为该物品不是宝石
      */
@@ -193,7 +197,8 @@ public class Tools {
 
         /**
          * 返回该物品对应的宝石对象
-         * @return 
+         *
+         * @return
          */
         public Gem getGem() {
             return gem;
@@ -201,6 +206,7 @@ public class Tools {
 
         /**
          * 返回等级
+         *
          * @return
          */
         public int getLevel() {
@@ -209,6 +215,19 @@ public class Tools {
 
     }
 
+    public static Set<Gem> getInstalledGem(ItemStack is) {
+        if (is == null || !is.hasItemMeta() || !is.getItemMeta().hasLore()) {
+            return null;
+        }
+        Set<Gem> gems = new HashSet<>();
+        is.getItemMeta().getLore()
+                .stream()
+                .map(Tools::getIdentifier)
+                .map(Data::getGem)
+                .filter(g -> g != null)
+                .forEach(gems::add);
+        return gems;
+    }
 
     public static ItemStack updateItem(ItemStack is) {
         if (is == null || !is.hasItemMeta() || !is.getItemMeta().hasLore()) {

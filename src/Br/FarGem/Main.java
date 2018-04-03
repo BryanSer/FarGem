@@ -53,6 +53,22 @@ public class Main extends JavaPlugin {
                 sender.sendMessage("找不到玩家");
                 return true;
             }
+            if(args[2].equalsIgnoreCase("remove")){
+                ItemStack is = Remover.getRemover();
+                Utils.safeGiveItem(o, is);
+                o.getPlayer().sendMessage("§6一个宝石移除器已放入你的背包");
+                Main.log.Log(o.getName() + " -> Removeer   操作者: " + sender.getName());
+                sender.sendMessage("§6发送成功");
+                return true;
+            }
+            if(args[2].equalsIgnoreCase("uninstaller")){
+                ItemStack is = Remover.getUninstaller();
+                Utils.safeGiveItem(o, is);
+                o.getPlayer().sendMessage("§6一个宝石移除器已放入你的背包");
+                Main.log.Log(o.getName() + " -> Uninstaller   操作者: " + sender.getName());
+                sender.sendMessage("§6发送成功");
+                return true;
+            }
             Gem g = Data.getGem(args[2]);
             if (g == null) {
                 sender.sendMessage("§c找不到宝石");
