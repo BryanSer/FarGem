@@ -39,6 +39,10 @@ public class Scripts {
             ScriptLoader.eval(p, (t) -> {
                 try {
                     t.eval(new FileReader(f));
+                    boolean enable = (boolean) t.invokeFunction("isEnable", new Object[]{});
+                    if(!enable){
+                        return;
+                    }
                     Gem gem = (Gem) t.invokeFunction("getGem", new Object[]{});
                     ScriptListener sl[] = (ScriptListener[]) t.invokeFunction("getListener", new Object[]{});
                     if (gem instanceof GemRunnable) {

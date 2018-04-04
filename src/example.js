@@ -4,6 +4,9 @@
  */
 /* global Java */
 
+var Enable = false;
+
+
 var Gem = Java.type('Br.FarGem.Gem');
 var GemDisplay = Java.type('Br.FarGem.GemDisplay');
 var Config = Java.type('Br.FarGem.Gem.Config');
@@ -76,4 +79,8 @@ function getGem() {
 
 function getListener() {
     return Java.to([Listener], "Br.API.Scripts.ScriptListener[]")
+}
+
+function isEnable(){
+    return Enable;
 }

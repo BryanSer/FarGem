@@ -31,11 +31,19 @@ public class Data {
 
     /**
      * 通过名字寻找某宝石
+     *
      * @param name
      * @return
      */
     public static Gem getGem(String name) {
-        return GemIDMap.get(Identifiers.get(name));
+        Integer id = Identifiers.get(name);
+        if (id == null) {
+            try {
+                id = Integer.getInteger(name);
+            } catch (NumberFormatException e) {
+            }
+        }
+        return GemIDMap.get(id);
     }
 
     public static void init(Main p) {
@@ -54,6 +62,7 @@ public class Data {
 
     /**
      * 加载宝石配置(建议不要使用 本框架会自动调用)
+     *
      * @param g
      */
     public static void LoadGemData(Gem g) {

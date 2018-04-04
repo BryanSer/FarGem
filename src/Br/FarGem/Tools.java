@@ -223,6 +223,8 @@ public class Tools {
         is.getItemMeta().getLore()
                 .stream()
                 .map(Tools::getIdentifier)
+                .filter(t -> t != null)
+                .map(t -> t.split("\\|")[0])
                 .map(Data::getGem)
                 .filter(g -> g != null)
                 .forEach(gems::add);

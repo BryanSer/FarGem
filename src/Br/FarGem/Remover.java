@@ -86,6 +86,7 @@ public class Remover implements Listener {
         if (!isEQ) {
             evt.getPlayer().sendMessage("§c你手上的东西没有镶嵌任何宝石或你副手有东西");
             Utils.safeGiveItem(evt.getPlayer(), t == Type.Remove ? getRemover() : getUninstaller());
+            WaitForRemove.remove(evt.getPlayer().getName());
             return;
         }
         this.Return(evt.getPlayer());
