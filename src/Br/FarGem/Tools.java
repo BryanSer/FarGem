@@ -164,11 +164,11 @@ public class Tools {
         if (code == null) {
             return null;
         }
+        if(!code.matches(Gem.GemRegEX)){
+            return null;
+        }
         try {
             String s[] = code.split("\\|");
-            if (!s[1].equals("Gem")) {
-                return null;
-            }
             int id = Integer.parseInt(s[0]);
             Gem g = Data.GemIDMap.get(id);
             if (g == null) {
@@ -220,14 +220,18 @@ public class Tools {
             return null;
         }
         Set<Gem> gems = new HashSet<>();
-        is.getItemMeta().getLore()
-                .stream()
-                .map(Tools::getIdentifier)
-                .filter(t -> t != null)
-                .map(t -> t.split("\\|")[0])
-                .map(Data::getGem)
-                .filter(g -> g != null)
-                .forEach(gems::add);
+        for (String s : is.getItemMeta().getLore()) {
+            s = Tools.getIdentifier(s);
+            if (s == null) {
+                continue;
+            }
+            String v[] = s.split("\\|");
+            if (v[1].equals("Gem")) {
+                return null;
+            }
+            int id = Integer.parseInt(v[0]);
+            gems.add(Data.GemIDMap.get(id));
+        }
         return gems;
     }
 
@@ -247,6 +251,9 @@ public class Tools {
             }
             String v[] = vs.split("\\|");
             Gem g = Data.GemIDMap.get(Integer.parseInt(v[0]));
+            if (g == null) {
+                continue;
+            }
             int lv = Integer.parseInt(v[2]);
             if (v[1].equals("Gem")) {
                 if (!s.equals(g.getGemDisplayLore(lv))) {

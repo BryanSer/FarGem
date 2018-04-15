@@ -9,6 +9,7 @@ package Br.FarGem;
 import Br.API.Lores;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -44,6 +45,7 @@ public abstract class Gem implements Listener {
 
     /**
      * 返回宝石安装在装备上后显示的Lore(只有一行)
+     *
      * @param lv
      * @return
      */
@@ -51,12 +53,14 @@ public abstract class Gem implements Listener {
 
     /**
      * 返回宝石的配置对象数组
+     *
      * @return
      */
     public abstract Config<Object>[] getConfigs();
 
     /**
      * 检查该装备是否能安装此宝石
+     *
      * @param is
      * @return true为能安装
      */
@@ -64,6 +68,7 @@ public abstract class Gem implements Listener {
 
     /**
      * 返回宝石的最大等级
+     *
      * @return 最大等级
      */
     public int getMaxLevel() {
@@ -72,6 +77,7 @@ public abstract class Gem implements Listener {
 
     /**
      * 返回宝石的识别码
+     *
      * @return 识别码
      */
     public final int getIdentifier() {
@@ -80,6 +86,7 @@ public abstract class Gem implements Listener {
 
     /**
      * 返回宝石名
+     *
      * @return 宝石名
      */
     public String getName() {
@@ -89,6 +96,7 @@ public abstract class Gem implements Listener {
     /**
      * 返回宝石的显示名<br>
      * <s>注意 该方法只有在没有实现GemDisplay接口时对宝石的样式有影响</s>
+     *
      * @see GemDisplay
      * @return
      */
@@ -98,6 +106,7 @@ public abstract class Gem implements Listener {
 
     /**
      * 返回指定等级的宝石物品
+     *
      * @param level 指定等级
      * @return 宝石物品
      */
@@ -127,8 +136,17 @@ public abstract class Gem implements Listener {
         return is;
     }
 
+    public ItemStack BeforeInstall(ItemStack is, int level) {
+        return is;
+    }
+
+    public ItemStack BeforeUninstall(ItemStack is, int lv) {
+        return is;
+    }
+
     /**
      * 安装宝石
+     *
      * @param is
      * @param level
      * @return
@@ -173,6 +191,7 @@ public abstract class Gem implements Listener {
                 Data.InstallPrefix_Value,
                 this.getEquipDisplayLore(level)
             });
+            is = this.BeforeInstall(is, level);
             return is;
         } else {
             if (replace) {
@@ -194,11 +213,14 @@ public abstract class Gem implements Listener {
             im.setLore(newlore);
             is.setItemMeta(im);
         }
-        return is;
+        is = this.BeforeInstall(is, level);
+        ItemStack up = Tools.updateItem(is.clone());
+        return up == null ? is : up;
     }
 
     /**
      * 返回宝石(非安装后的装备)的识别Lore
+     *
      * @param lv
      * @return 识别Lore
      */
@@ -208,6 +230,7 @@ public abstract class Gem implements Listener {
 
     /**
      * 返回安装宝石之后的装备识别Lore
+     *
      * @param lv
      * @return 识别Lore
      */
@@ -217,6 +240,7 @@ public abstract class Gem implements Listener {
 
     /**
      * 通过物品查询安装的宝石等级
+     *
      * @param is 物品
      * @return 等级
      */
@@ -231,23 +255,30 @@ public abstract class Gem implements Listener {
         for (String s : lore) {
             s = Tools.getIdentifier(s);
             if (s != null) {
-                if (s.contains(String.valueOf(this.getIdentifier()))) {
+                if (!s.matches(EquipRegEX)) {
+                    continue;
+                }
+                if (s.contains("|")) {
                     String v[] = s.split("\\|");
                     if (v.length != 3) {
-                        return 0;
+                        continue;
                     }
-                    if (v[1].equals("Equip")) {
-                        return Integer.parseInt(v[2]);
+                    if (!v[0].equals(String.valueOf(this.getIdentifier()))) {
+                        continue;
                     }
-                    return 0;
+                    return Integer.parseInt(v[2]);
                 }
             }
         }
         return 0;
     }
 
+    public static final String EquipRegEX = "[0-9]*\\|Equip\\|[0-9]*";
+    public static final String GemRegEX = "[0-9]*\\|Gem\\|[0-9]*";
+
     /**
      * 已弃用 Tools类里有静态方法getGemInfo(ItemStack)代替
+     *
      * @see Tools#getGemInfo
      * @param is
      * @return
@@ -261,15 +292,12 @@ public abstract class Gem implements Listener {
         List<String> lore = is.getItemMeta().getLore();
         String code = lore.get(lore.size() - 1);
         code = Tools.getIdentifier(code);
-        if (code != null) {
+        if (code != null && code.matches(GemRegEX)) {
             String s[] = code.split("\\|");
             if (s.length != 3) {
                 return 0;
             }
             if (!s[0].equals(String.valueOf(this.getIdentifier()))) {
-                return 0;
-            }
-            if (!s[1].equals("Gem")) {
                 return 0;
             }
             return Integer.parseInt(s[2]);
@@ -283,7 +311,7 @@ public abstract class Gem implements Listener {
     public final void Register() {
         Bukkit.getPluginManager().registerEvents(this, Data.Plugin);
         Data.LoadGemData(this);
-        if(this instanceof GemRunnable){
+        if (this instanceof GemRunnable) {
             GemRunnable gr = (GemRunnable) this;
             Bukkit.getScheduler().runTaskTimer(Data.Plugin, gr::run, gr.delay(), gr.interval());
         }
@@ -292,6 +320,7 @@ public abstract class Gem implements Listener {
     /**
      * 宝石的配置类<p>
      * 一个宝石里可以有多个配置对象
+     *
      * @param <V>
      */
     public static class Config<V extends Object> {
@@ -301,7 +330,7 @@ public abstract class Gem implements Listener {
         private final String Name;
 
         /**
-         * 
+         *
          * @param Name 配置名(在config中的锚点 不允许带'.')
          * @param Values 通过给定的等级返回指定的值
          * @param needLevel 是否区分等级 若为false将不会有多个等级的配置存在
@@ -318,6 +347,7 @@ public abstract class Gem implements Listener {
 
         /**
          * 返回指定等级的值
+         *
          * @param lv
          * @return
          */
@@ -328,6 +358,7 @@ public abstract class Gem implements Listener {
         /**
          * 返回值<p>
          * <s>只有在needLevel == true时有用</s>
+         *
          * @see Config
          * @return
          */
@@ -345,5 +376,38 @@ public abstract class Gem implements Listener {
         public String getName() {
             return Name;
         }
+    }
+
+    public void setDisplayName(String DisplayName) {
+        this.DisplayName = DisplayName;
+    }
+    
+    
+    /**
+     *
+     * @param f 如何操作每个装备的值
+     * @param is
+     * @return
+     */
+    public final int getEquipLevel(BiFunction<Integer, Integer, Integer> f, ItemStack... is) {
+        int max = 0;
+        for (ItemStack i : is) {
+            if (i == null) {
+                continue;
+            }
+            int lv = this.getEquipLevel(i);
+            max = f.apply(max, lv);
+        }
+        return max;
+    }
+
+    public final <T extends Number> T getLevelFromFunction(BiFunction<Integer, T, T> f, T defaultvalue, ItemStack... is) {
+        for (ItemStack i : is) {
+            if (i == null) {
+                continue;
+            }
+            defaultvalue = f.apply(this.getEquipLevel(i), defaultvalue);
+        }
+        return defaultvalue;
     }
 }

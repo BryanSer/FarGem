@@ -84,7 +84,7 @@ public class GemListener implements Listener {
         if (!evt.hasItem()) {
             return;
         }
-        if (evt.getAction().name().contains("LEFT")) {
+        if (evt.getAction().name().contains("LEFT") && !evt.isCancelled()) {
             ItemStack result = Tools.updateItem(evt.getItem());
             if (result != null) {
                 evt.setCancelled(true);
@@ -112,6 +112,29 @@ public class GemListener implements Listener {
         } else {
             is.setAmount(is.getAmount() - 1);
             evt.getPlayer().getInventory().setItemInMainHand(is);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
+    public void onInt(PlayerInteractEvent evt) {
+        if (evt.hasItem()) {
+            ItemStack is;
+            try {
+                is = evt.getPlayer().getEquipment().getItemInMainHand();
+            } catch (Throwable e) {
+                is = evt.getPlayer().getItemInHand();
+            }
+            if(is != null){
+                is = is.clone();
+                is = Tools.updateItem(is);
+                if(is != null){
+                    try {
+                        evt.getPlayer().getEquipment().setItemInMainHand(is);
+                    } catch (Exception e) {
+                        evt.getPlayer().setItemInHand(is);
+                    }
+                }
+            }
         }
     }
 

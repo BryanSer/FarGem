@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -27,6 +28,7 @@ public class Data {
     public static Map<Integer, Gem> GemIDMap = new HashMap<>();
     public static Main Plugin;
 
+    public static Material DefaultGemMaterial;
     public static String InstallPrefix_Value;
 
     /**
@@ -58,6 +60,16 @@ public class Data {
         }
         FileConfiguration config = Plugin.getConfig();
         InstallPrefix_Value = ChatColor.translateAlternateColorCodes('&', config.getString("InstallPrefix.Value"));
+        if (config.contains("DefaultGemMaterial")) {
+            if (config.isInt("DefaultGemMaterial")) {
+                Data.DefaultGemMaterial = Material.getMaterial(config.getInt("DefaultGemMaterial"));
+            } else if (config.isString("DefaultGemMaterial")) {
+                Data.DefaultGemMaterial = Material.matchMaterial(config.getString("DefaultGemMaterial"));
+            }
+            if (Data.DefaultGemMaterial == null) {
+                Data.DefaultGemMaterial = Material.EMERALD;
+            }
+        }
     }
 
     /**

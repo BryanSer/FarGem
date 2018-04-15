@@ -6,21 +6,24 @@
  */
 package Br.FarGem;
 
+import Br.API.CallBack;
 import Br.API.Utils;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitTask;
 
 /**
  *
@@ -65,10 +68,10 @@ public class Remover implements Listener {
 
     private Map<String, ItemStack> Queue = new HashMap<>();
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onClickEquip(PlayerInteractEvent evt) {
-        if(Queue.containsKey(evt.getPlayer().getName())){
-            evt.getPlayer().sendMessage("§6请先在聊天框中选择你要卸除的宝石");
+        if (Queue.containsKey(evt.getPlayer().getName())) {
+            evt.getPlayer().sendMessage("§c你还有未处理的移除请求");
             evt.setCancelled(true);
             return;
         }
@@ -81,7 +84,7 @@ public class Remover implements Listener {
         }
         ItemStack is = evt.getItem();
         Set<Gem> gems = Tools.getInstalledGem(is);
-        boolean isEQ = is.hasItemMeta() && is.getItemMeta().hasLore() && gems != null && !gems.isEmpty();
+        boolean isEQ = gems != null && !gems.isEmpty();
         isEQ = isEQ ^ Utils.hasItemInOffHand(evt.getPlayer()) && isEQ;
         if (!isEQ) {
             evt.getPlayer().sendMessage("§c你手上的东西没有镶嵌任何宝石或你副手有东西");
@@ -89,22 +92,33 @@ public class Remover implements Listener {
             WaitForRemove.remove(evt.getPlayer().getName());
             return;
         }
-        this.Return(evt.getPlayer());
+        evt.setCancelled(true);
         String gemname[] = new String[gems.size()];
-        String display[] = new String[gems.size()];
+        String display[] = new String[gems.size() + 1];
         int index = 0;
         for (Gem s : gems) {
             gemname[index] = s.getName();
             display[index++] = s.getDisplayName();
         }
-        Queue.put(evt.getPlayer().getName(), evt.getItem().clone());
-        evt.getPlayer().setItemInHand(null);
-        Utils.CallBack.SendButtonRequest(evt.getPlayer(), display, (p, i) -> {
+        display[gems.size()] = "§c取消";
+        evt.getPlayer().sendMessage("§6§l请在下面的宝石中选择你要卸除的");
+        boolean suc = CallBack.SendButtonRequest(evt.getPlayer(), display, (p, i) -> {
             if (i == null || i < 0 || i >= gemname.length) {
-                Queue.remove(p.getName());
+                ItemStack iss = Queue.remove(p.getName());
+                if (iss != null) {
+                    p.sendMessage("§6你之前的移除请求已经取消 物品已返还至背包");
+                    Utils.safeGiveItem(p, is);
+                }
+                Type tt = WaitForRemove.remove(p.getName());
+                if (tt != null) {
+                    Utils.safeGiveItem(p, t == Type.Remove ? getRemover() : getUninstaller());
+                }
                 return;
             }
             ItemStack item = Queue.remove(p.getName());
+            if (item == null) {
+                return;
+            }
             ItemMeta im = item.getItemMeta();
             List<String> lore = im.getLore();
             int remove = -1;
@@ -126,7 +140,8 @@ public class Remover implements Listener {
                 lore.remove(remove);
                 im.setLore(lore);
                 is.setItemMeta(im);
-                Utils.safeGiveItem(p, is);
+                ItemStack tar = targ.BeforeUninstall(is, lv);
+                Utils.safeGiveItem(p, tar);
                 if (t == Type.Uninstall) {
                     ItemStack gem = targ.getGem(lv);
                     Utils.safeGiveItem(p, gem);
@@ -134,22 +149,34 @@ public class Remover implements Listener {
                 p.sendMessage("§6卸除已完成");
             }
             WaitForRemove.remove(p.getName());
-        });
-    }
-
-    public void Return(Player p) {
-        ItemStack is = Queue.remove(p.getName());
-        if (is != null) {
-            p.sendMessage("§6你之前的移除请求已经取消 物品已返还至背包");
-            Utils.safeGiveItem(p, is);
-            Type t = WaitForRemove.remove(p.getName());
-            if (t != null) {
-                Utils.safeGiveItem(p, t == Type.Remove ? getRemover() : getUninstaller());
+        }, 10);
+        if (suc) {
+            Queue.put(evt.getPlayer().getName(), is.clone());
+            try {
+                evt.getPlayer().getInventory().setItemInMainHand(null);
+            } catch (Throwable e) {
+                evt.getPlayer().setItemInHand(null);
             }
+        }else {
+            evt.getPlayer().sendMessage("§c你还有未处理的移除请求");
         }
     }
 
     @EventHandler
+    public void onQuit(PlayerQuitEvent evt) {
+        Player p = evt.getPlayer();
+        ItemStack is = Queue.remove(p.getName());
+        if (is != null) {
+            p.sendMessage("§6你之前的移除请求已经取消 物品已返还至背包");
+            Utils.safeGiveItem(p, is);
+        }
+        Type t = WaitForRemove.remove(p.getName());
+        if (t != null) {
+            Utils.safeGiveItem(p, t == Type.Remove ? getRemover() : getUninstaller());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
     public void onInt(PlayerInteractEvent evt) {
         if (!evt.hasItem()) {
             return;

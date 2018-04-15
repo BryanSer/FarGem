@@ -7,13 +7,13 @@
 package Br.FarGem;
 
 import Br.API.Log;
+import Br.API.Metrics;
 import Br.API.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -31,6 +31,14 @@ public class Main extends JavaPlugin {
         Scripts.LoadScripts(this);
         Bukkit.getPluginManager().registerEvents(new GemListener(), this);
         Main.log = Br.API.Log.CombineOldLog(this, 1);
+        Bukkit.getPluginManager().registerEvents(new Remover(), this);
+        Metrics metrics = new Metrics(this);
+        metrics.addCustomChart(new Metrics.SingleLineChart("gems", () -> {
+            return Data.GemIDMap.size();
+        }));
+        metrics.addCustomChart(new Metrics.SingleLineChart("scriptsgems", () -> {
+            return Scripts.LoadFromScripts.size();
+        }));
     }
 
     @Override
@@ -53,7 +61,7 @@ public class Main extends JavaPlugin {
                 sender.sendMessage("找不到玩家");
                 return true;
             }
-            if(args[2].equalsIgnoreCase("remove")){
+            if (args[2].equalsIgnoreCase("remove")) {
                 ItemStack is = Remover.getRemover();
                 Utils.safeGiveItem(o, is);
                 o.getPlayer().sendMessage("§6一个宝石移除器已放入你的背包");
@@ -61,7 +69,7 @@ public class Main extends JavaPlugin {
                 sender.sendMessage("§6发送成功");
                 return true;
             }
-            if(args[2].equalsIgnoreCase("uninstaller")){
+            if (args[2].equalsIgnoreCase("uninstaller")) {
                 ItemStack is = Remover.getUninstaller();
                 Utils.safeGiveItem(o, is);
                 o.getPlayer().sendMessage("§6一个宝石移除器已放入你的背包");
@@ -90,6 +98,7 @@ public class Main extends JavaPlugin {
         }
         if (args[0].equalsIgnoreCase("reload") && sender.isOp()) {
             Data.init(this);
+            Scripts.LoadScripts(this);
             for (Gem g : Data.GemIDMap.values()) {
                 Data.LoadGemData(g);
             }

@@ -1,10 +1,6 @@
-/* 
- * 开发者:Bryan_lzh
- * QQ:390807154
- */
 /* global Java */
 
-var Enable = false;
+var Enable = true;
 
 
 var Gem = Java.type('Br.FarGem.Gem');
@@ -63,22 +59,22 @@ var Listener = new ScriptListener(){
         }
         var p = evt.getDamager();
         var is = p.getItemInHand();
-        var lv = Java.super(AttackGem).getEquipLevel(is);
+        var lv = AttackGem.getEquipLevel(is);
         if (lv > 0) {
             evt.setDamage(evt.getDamage() + AttackConfig.getValue(lv));
         }
     },
-    getEventClass: function () {
-        return Java.tpye('org.bukkit.event.entity.EntityDamageByEntityEvent');
+    getEventName: function () {
+        return 'org.bukkit.event.entity.EntityDamageByEntityEvent';
     }
-}
+};
 function getGem() {
     return AttackGem;
 }
 
 
 function getListener() {
-    return Java.to([Listener], "Br.API.Scripts.ScriptListener[]")
+    return Java.to([Listener], "Br.API.Scripts.ScriptListener[]");
 }
 
 function isEnable(){
