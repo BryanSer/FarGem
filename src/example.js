@@ -2,7 +2,6 @@
 
 var Enable = true;
 
-
 var Gem = Java.type('Br.FarGem.Gem');
 var GemDisplay = Java.type('Br.FarGem.GemDisplay');
 var Config = Java.type('Br.FarGem.Gem.Config');

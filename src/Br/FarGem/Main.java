@@ -6,6 +6,7 @@
  */
 package Br.FarGem;
 
+import Br.API.GUI.MenuManager;
 import Br.API.Log;
 import Br.API.Metrics;
 import Br.API.Utils;
@@ -48,8 +49,16 @@ public class Main extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length == 0 && !sender.isOp() && (sender instanceof Player)) {
+            MenuManager.OpenMenu((Player) sender, "FarCraft");
+            return true;
+        }
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
             return false;
+        }
+        if (args[0].equalsIgnoreCase("craft") && (sender instanceof Player)) {
+            MenuManager.OpenMenu((Player) sender, "FarCraft");
+            return true;
         }
         if (args[0].equalsIgnoreCase("give") && sender.isOp()) {
             if (args.length < 4) {

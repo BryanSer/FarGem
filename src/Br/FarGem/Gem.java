@@ -75,6 +75,10 @@ public abstract class Gem implements Listener {
         return MaxLevel;
     }
 
+    public boolean canReaplce() {
+        return true;
+    }
+
     /**
      * 返回宝石的识别码
      *
@@ -143,6 +147,10 @@ public abstract class Gem implements Listener {
     public ItemStack BeforeUninstall(ItemStack is, int lv) {
         return is;
     }
+    
+    public ItemStack onRemove(ItemStack is,int lv){
+        return is;
+    }
 
     /**
      * 安装宝石
@@ -195,8 +203,19 @@ public abstract class Gem implements Listener {
             return is;
         } else {
             if (replace) {
+                if (!this.canReaplce()) {
+                    return null;
+                }
+                ItemStack isp = this.onRemove(is, this.getEquipLevel(is));
+                if(isp != null){
+                    is = isp;
+                }
                 is = Lores.setLore(is, SpLine,
                         this.getEquipDisplayLore(level));
+                isp = this.BeforeInstall(is, level);
+                if(isp != null){
+                    is = isp;
+                }
                 return is;
             }
             List<String> newlore = new ArrayList<>();
@@ -381,8 +400,7 @@ public abstract class Gem implements Listener {
     public void setDisplayName(String DisplayName) {
         this.DisplayName = DisplayName;
     }
-    
-    
+
     /**
      *
      * @param f 如何操作每个装备的值

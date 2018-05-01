@@ -33,3 +33,4 @@ commands:
                       §a用于移除或卸除宝石
         §c/<command> all >> 显示全部的宝石
         §c/<command> reload >> 重载全部配置文件
+        §c/<command> craft >> 打开合成菜单

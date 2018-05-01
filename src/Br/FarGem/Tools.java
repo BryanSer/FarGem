@@ -155,7 +155,7 @@ public class Tools {
      * @return null时为该物品不是宝石
      */
     public static GemInfo getGemInfo(ItemStack is) {
-        if (!is.hasItemMeta() || !is.getItemMeta().hasLore()) {
+        if (is == null || !is.hasItemMeta() || !is.getItemMeta().hasLore()) {
             return null;
         }
         List<String> lore = is.getItemMeta().getLore();
@@ -164,7 +164,7 @@ public class Tools {
         if (code == null) {
             return null;
         }
-        if(!code.matches(Gem.GemRegEX)){
+        if (!code.matches(Gem.GemRegEX)) {
             return null;
         }
         try {

@@ -1,0 +1,14 @@
+#是否启用宝石合成
+Enable: true
+#默认的合成成功概率公式
+#amount是同种宝石的数量
+#lv是宝石等级
+#1代表100%
+DefaultChance: '0.1 * amount - 0.05 * (lv - 1)'
+#设定至少要多少宝石才能
+Minimal: 5
+#设定某种特殊宝石的概率
+Chance:
+#删掉井号启用设定
+#格式为 宝石名: 公式
+#    AttackGem: '0.1 * amount - 0.05 * lv'
