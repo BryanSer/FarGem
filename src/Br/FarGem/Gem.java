@@ -124,7 +124,7 @@ public abstract class Gem implements Listener {
             is = new ItemStack(gp.getType(level), 1, (short) gp.getDurability(level));
             ItemMeta im = is.getItemMeta();
             im.setDisplayName(gp.getDisplayName(level));
-            im.setLore(gp.getLore(level));
+            //  im.setLore(gp.getLore(level));
             is.setItemMeta(im);
         } else {
             is = new ItemStack(Material.EMERALD);
@@ -147,8 +147,8 @@ public abstract class Gem implements Listener {
     public ItemStack BeforeUninstall(ItemStack is, int lv) {
         return is;
     }
-    
-    public ItemStack onRemove(ItemStack is,int lv){
+
+    public ItemStack onRemove(ItemStack is, int lv) {
         return is;
     }
 
@@ -207,13 +207,13 @@ public abstract class Gem implements Listener {
                     return null;
                 }
                 ItemStack isp = this.onRemove(is, this.getEquipLevel(is));
-                if(isp != null){
+                if (isp != null) {
                     is = isp;
                 }
                 is = Lores.setLore(is, SpLine,
                         this.getEquipDisplayLore(level));
                 isp = this.BeforeInstall(is, level);
-                if(isp != null){
+                if (isp != null) {
                     is = isp;
                 }
                 return is;
@@ -244,7 +244,7 @@ public abstract class Gem implements Listener {
      * @return 识别Lore
      */
     public final String getGemDisplayLore(int lv) {
-        return Tools.encodeColorCode(Tools.IdentifierPrefix + this.getIdentifier() + "|Gem|" + lv + Tools.IdentifierSuffix) + getDisplayLore(lv);
+        return Tools.encodeColorCode(Tools.IdentifierPrefix + this.getIdentifier() + "|Gem|" + lv + Tools.IdentifierSuffix) + (this instanceof GemDisplay ? "" : getDisplayLore(lv));
     }
 
     /**
