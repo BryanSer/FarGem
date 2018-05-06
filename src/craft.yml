@@ -7,6 +7,8 @@ Enable: true
 DefaultChance: '0.1 * amount - 0.05 * (lv - 1)'
 #设定至少要多少宝石才能
 Minimal: 5
+#当前最高可合成  到  的等级
+MaxLevel: 2
 #设定某种特殊宝石的概率
 Chance:
 #删掉井号启用设定

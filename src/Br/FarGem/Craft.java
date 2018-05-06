@@ -39,6 +39,7 @@ public class Craft {
     public static BiFunction<Integer, Integer, Double> DefaultChance;
     public static Map<String, BiFunction<Integer, Integer, Double>> Chance = new HashMap<>();
     private static int Minimal;
+    private static int MaxLevel;
 
     public static void init() {
         File f = new File(Data.Plugin.getDataFolder(), "craft.yml");
@@ -56,13 +57,10 @@ public class Craft {
         String defaultchance = config.getString("DefaultChance");
         Craft.DefaultChance = (a, lv) -> Cal(a, lv, defaultchance);
         Craft.Minimal = config.getInt("Minimal");
+        Craft.MaxLevel = config.getInt("MaxLevel");
         try {
             ConfigurationSection cs = config.getConfigurationSection("Chance");
             for (String key : cs.getKeys(false)) {
-                if (Data.getGem(key) == null) {
-                    System.out.println("错误 找不到宝石: " + key);
-                    continue;
-                }
                 String s = cs.getString(key);
                 Chance.put(key, (a, lv) -> Cal(a, lv, s));
             }
@@ -86,7 +84,7 @@ public class Craft {
                             ItemStack is = p.getInventory().getItemInMainHand().clone();
                             int amount = is.getAmount();
                             Tools.GemInfo info = Tools.getGemInfo(is);
-                            if (info == null || info.getLevel() == info.getGem().getMaxLevel()) {
+                            if (info == null || info.getLevel() == info.getGem().getMaxLevel() || info.getLevel() >= Craft.MaxLevel) {
                                 return ItemBuilder.getBuilder(Material.BARRIER)
                                         .name("§c无法合成")
                                         .build();
@@ -100,20 +98,24 @@ public class Craft {
                             return ItemBuilder.getBuilder(Material.STAINED_GLASS_PANE)
                                     .durability((short) 14)
                                     .name("§b点击合成手上宝石")
-                                    .lore("§7合成概率: " + (chance > 0.6 ? 'a' : 'c') + DF.format(chance),
+                                    .lore("§7合成概率: §" + (chance > 0.6 ? 'a' : 'c') + DF.format(chance),
                                             "§7合成数量: " + (amount >= Craft.Minimal ? "§a达标" : "§c不达标"),
-                                            "§7稳定剂: §c无",
+                                            "§7稳定剂: §c无",//TODO
                                             "§7保护石: §c无")
                                     .build();
                         })
                         .setUse((p) -> {
                             ItemStack is = p.getInventory().getItemInMainHand().clone();
                             Tools.GemInfo info = Tools.getGemInfo(is);
-                            if (info == null || info.getLevel() == info.getGem().getMaxLevel()) {
+                            if (info == null || info.getLevel() == info.getGem().getMaxLevel() || info.getLevel() >= Craft.MaxLevel) {
                                 p.sendMessage("§c不是宝石或宝石已满级");
                                 return;
                             }
                             int amount = is.getAmount();
+                            if(amount < Craft.Minimal){
+                                p.sendMessage("§c宝石不足");
+                                return;
+                            }
                             double chance;
                             if (Craft.Chance.containsKey(info.getGem().getName())) {
                                 chance = Craft.Chance.get(info.getGem().getName()).apply(amount, info.getLevel());

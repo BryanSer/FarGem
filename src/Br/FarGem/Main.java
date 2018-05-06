@@ -40,6 +40,7 @@ public class Main extends JavaPlugin {
         metrics.addCustomChart(new Metrics.SingleLineChart("scriptsgems", () -> {
             return Scripts.LoadFromScripts.size();
         }));
+        Craft.init();
     }
 
     @Override
