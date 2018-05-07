@@ -124,7 +124,7 @@ public abstract class Gem implements Listener {
             is = new ItemStack(gp.getType(level), 1, (short) gp.getDurability(level));
             ItemMeta im = is.getItemMeta();
             im.setDisplayName(gp.getDisplayName(level));
-            //  im.setLore(gp.getLore(level));
+            im.setLore(gp.getLore(level));
             is.setItemMeta(im);
         } else {
             is = new ItemStack(Material.EMERALD);

@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -54,8 +53,6 @@ public class Craft {
         if (!config.getBoolean("Enable")) {
             return;
         }
-        String defaultchance = config.getString("DefaultChance");
-        Craft.DefaultChance = (a, lv) -> Cal(a, lv, defaultchance);
         Craft.Minimal = config.getInt("Minimal");
         Craft.MaxLevel = config.getInt("MaxLevel");
         try {
@@ -66,6 +63,13 @@ public class Craft {
             }
         } catch (Throwable e) {
         }
+        Craft.DefaultChance = (a, lv) -> {
+            try {
+                return config.getDouble("DefaultChance." + lv + "." + a);
+            } catch (Throwable e) {
+                return 0d;
+            }
+        };
         CreateUI();
     }
 
@@ -112,7 +116,7 @@ public class Craft {
                                 return;
                             }
                             int amount = is.getAmount();
-                            if(amount < Craft.Minimal){
+                            if (amount < Craft.Minimal) {
                                 p.sendMessage("§c宝石不足");
                                 return;
                             }
