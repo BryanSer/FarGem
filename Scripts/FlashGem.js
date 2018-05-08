@@ -119,7 +119,7 @@ var Listener = new ScriptListener(){
         CD.put(p.getName(), System.currentTimeMillis());
     },
     getEventName: function () {
-        return 'rg.bukkit.event.player.PlayerInteractEvent';
+        return 'org.bukkit.event.player.PlayerInteractEvent';
     }
 };
 function getGem() {
