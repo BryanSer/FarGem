@@ -12,17 +12,17 @@ var GemListener = Java.type('Br.FarGem.GemListener');
 var ScriptListener = Java.extend(Java.type('Br.API.Scripts.ScriptListener'));
 var FlashGemType = Java.extend(Gem, OptionalGemDisplay);
 
-var GemLore = new Config('GemLore', function (lv) {
+var GemLore = new Config('GemLore', function (t) {
     var lore = new java.util.ArrayList();
-    lore.add('§5闪现石 §b等级:' + t);
+    lore.add('§5闪现石 §b等级-' + t);
     lore.add('§b闪现距离' + t * 3);
     lore.add('仅能镶嵌到粘液球上');
-    return list;
+    return lore;
 });
 var InstallItem = new Config('InstallItem', 341);//粘液球ID
 var DisplayLore = new Config('DisplayLore', function (lv) {
     var s = '闪现石';
-    switch (level) {
+    switch (lv) {
         case 1:
             s = '一级' + s;
             break;
@@ -39,7 +39,7 @@ var DisplayLore = new Config('DisplayLore', function (lv) {
             s = '五级' + s;
             break;
     }
-    return '§a§l' + s + '   -   闪现距离:' + level * 3;
+    return '§a§l' + s + '   -   闪现距离:' + lv * 3;
 });
 var Distance = new Config('Distance', function (lv) {
     return lv * 3;
@@ -67,7 +67,7 @@ var FlashGem = new FlashGemType('FlashGem', '§b闪现石', 5){
         return GemLore.getValue(lv);
     },
     getDisplayName: function (lv) {
-        return '§b' + '级 闪现石';
+        return '§b'+lv + '级 闪现石';
     }
 };
 var CD = new java.util.HashMap();
@@ -88,7 +88,7 @@ var Listener = new ScriptListener(){
         if (level < 0) {
             return;
         }
-        evt.setCanceled(true);
+        evt.setCancelled(true);
         var p = evt.getPlayer();
         var cd = ColdDown.getValue(level);
         if (CD.containsKey(p.getName()) && CD.get(p.getName()) + cd * 1000 > System.currentTimeMillis()) {
