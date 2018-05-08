@@ -13,7 +13,7 @@ var ScriptListener = Java.extend(Java.type('Br.API.Scripts.ScriptListener'));
 var FlashGemType = Java.extend(Gem, OptionalGemDisplay);
 
 var GemLore = new Config('GemLore', function (lv) {
-    var list = new java.util.ArrayList();
+    var lore = new java.util.ArrayList();
     lore.add('§5闪现石 §b等级:' + t);
     lore.add('§b闪现距离' + t * 3);
     lore.add('仅能镶嵌到粘液球上');
