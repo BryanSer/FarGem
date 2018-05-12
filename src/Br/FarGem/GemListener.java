@@ -142,7 +142,7 @@ public class GemListener implements Listener {
         try {
             return !(p.getInventory().getItemInOffHand() == null || p.getInventory().getItemInOffHand().getType() == Material.AIR || p.getInventory().getItemInOffHand().getAmount() == 0);
         } catch (Throwable e) {
-            return p.getItemInHand() != null;
+            return false;
         }
     }
 }

@@ -17,8 +17,8 @@ var DisplayLoreConfig = new Config("DisplayLore", function (lv) {
 }, true);
 var GemLoreConfig = new Config("GemLoreConfig", function (lv) {
     var list = new java.util.ArrayList();
-    list.add("§c攻击宝石  等级: " + lv);
-    list.add("§b增加攻击力: " + lv * 3);
+    list.add("§c攻击宝石  等级- " + lv);
+    list.add("§b增加攻击力- " + lv * 3);
     list.add("§6仅能安装到剑或斧头上");
     list.add("§a右键宝石开始安装");
     return list;

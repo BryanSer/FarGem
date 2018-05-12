@@ -360,6 +360,14 @@ public abstract class Gem implements Listener {
             this.Name = Name;
         }
 
+        public Config(String Name, Function<Integer, V> Values) {
+            this(Name, Values, true);
+        }
+
+        public Config(String Name, V Values) {
+            this(Name, t -> Values, false);
+        }
+
         public void setFunction(Function<Integer, V> f) {
             this.Values = f;
         }
