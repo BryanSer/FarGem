@@ -72,6 +72,7 @@ public class GemListener implements Listener {
             Utils.safeGiveItem(evt.getPlayer(), gi.getGem().getGem(gi.getLevel()));
             return;
         }
+        result = Tools.updateItem(result);
         evt.getPlayer().getInventory().setItemInMainHand(result);
         evt.getPlayer().sendMessage("§6已成功镶嵌" + gi.getGem().getDisplayName());
     }
@@ -124,10 +125,10 @@ public class GemListener implements Listener {
             } catch (Throwable e) {
                 is = evt.getPlayer().getItemInHand();
             }
-            if(is != null){
+            if (is != null) {
                 is = is.clone();
                 is = Tools.updateItem(is);
-                if(is != null){
+                if (is != null) {
                     try {
                         evt.getPlayer().getEquipment().setItemInMainHand(is);
                     } catch (Exception e) {

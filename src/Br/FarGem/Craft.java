@@ -10,12 +10,15 @@ import Br.API.Calculator;
 import Br.API.GUI.Item;
 import Br.API.GUI.Menu;
 import Br.API.GUI.MenuManager;
+import Br.API.ItemBuilder;
 import Br.API.Utils;
-import Br.Artifice.Utils.ItemBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.logging.Level;
@@ -37,9 +40,10 @@ public class Craft {
      */
     public static BiFunction<Integer, Integer, Double> DefaultChance;
     public static Map<String, BiFunction<Integer, Integer, Double>> Chance = new HashMap<>();
+    public static Map<ItemStack, Double> Stabilizer = new HashMap<>();
     private static int Minimal;
     private static int MaxLevel;
-
+    
     public static void init() {
         File f = new File(Data.Plugin.getDataFolder(), "craft.yml");
         if (!f.exists()) {
@@ -70,11 +74,15 @@ public class Craft {
                 return 0d;
             }
         };
+        for (String s : config.getStringList("Stabilizer")) {
+            String v[] = s.split("\\|", 2);
+            Stabilizer.put(Utils.AnalyticalItem_2(v[1]), Double.parseDouble(v[0]));
+        }
         CreateUI();
     }
-
+    
     private static DecimalFormat DF = new DecimalFormat("##%");
-
+    
     public static void CreateUI() {
         MenuManager.RegisterMenu(Menu.getBuilder()
                 .setName("FarCraft")
@@ -99,12 +107,24 @@ public class Craft {
                             } else {
                                 chance = Craft.DefaultChance.apply(amount, info.getLevel());
                             }
+                            double w = 0d;
+                            for (ItemStack item : p.getInventory()) {
+                                if (item == null) {
+                                    continue;
+                                }
+                                ItemStack itemo = item.clone();
+                                itemo.setAmount(1);
+                                Double d = Stabilizer.get(itemo);
+                                if (d != null) {
+                                    w += d * item.getAmount();
+                                }
+                            }
                             return ItemBuilder.getBuilder(Material.STAINED_GLASS_PANE)
                                     .durability((short) 14)
                                     .name("§b点击合成手上宝石")
-                                    .lore("§7合成概率: §" + (chance > 0.6 ? 'a' : 'c') + DF.format(chance),
+                                    .lore("§7合成概率: §" + (chance + w > 0.6 ? 'a' : 'c') + DF.format(chance) + " + " + DF.format(w),
                                             "§7合成数量: " + (amount >= Craft.Minimal ? "§a达标" : "§c不达标"),
-                                            "§7稳定剂: §c无",//TODO
+                                            "§7稳定剂: §c" + (w == 0d ? "无" : "+" + DF.format(w)),//TODO
                                             "§7保护石: §c无")
                                     .build();
                         })
@@ -127,7 +147,23 @@ public class Craft {
                                 chance = Craft.DefaultChance.apply(amount, info.getLevel());
                             }
                             p.getInventory().setItemInMainHand(null);
-                            if (Math.random() < chance) {
+                            double w = 0d;
+                            ItemStack[] items = p.getInventory().getContents();
+                            for (int i = 0; i < items.length; i++) {
+                                ItemStack item = items[i];
+                                if (item == null) {
+                                    continue;
+                                }
+                                ItemStack itemo = item.clone();
+                                itemo.setAmount(1);
+                                Double d = Stabilizer.get(itemo);
+                                if (d != null) {
+                                    w += d * item.getAmount();
+                                    items[i] = null;
+                                }
+                            }
+                            p.getInventory().setContents(items);
+                            if (Math.random() < chance + w) {
                                 p.sendMessage("§6合成成功");
                                 ItemStack item = info.getGem().getGem(info.getLevel() + 1);
                                 Utils.safeGiveItem(p, item);
@@ -138,7 +174,7 @@ public class Craft {
                         .build())
                 .build());
     }
-
+    
     public static double Cal(int a, int lv, String c) {
         return Calculator.conversion(c.replaceAll("amount", String.valueOf(a)).replaceAll("lv", String.valueOf(lv)));
     }

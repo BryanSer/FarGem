@@ -186,7 +186,7 @@ public abstract class Gem implements Listener {
                 if (s.equals(Data.InstallPrefix_Value)) {
                     SpLine = i;
                 }
-                if (s.startsWith(Tools.encodeColorCode(Tools.IdentifierPrefix + String.valueOf(this.getIdentifier())))) {
+                if (s.startsWith(Tools.encodeColorCode(Tools.IdentifierPrefix + String.valueOf(this.getIdentifier()) + "|"))) {
                     SpLine = i;
                     replace = true;
                     break;
