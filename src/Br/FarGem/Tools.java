@@ -9,6 +9,7 @@ package Br.FarGem;
 import Br.API.Utils;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -213,6 +214,27 @@ public class Tools {
             return level;
         }
 
+    }
+    
+    public static List<GemInfo> getInstalledGemAndLevel(ItemStack is) {
+        if (is == null || !is.hasItemMeta() || !is.getItemMeta().hasLore()) {
+            return null;
+        }
+        List<GemInfo> gems = new ArrayList<>();
+        for (String s : is.getItemMeta().getLore()) {
+            s = Tools.getIdentifier(s);
+            if (s == null) {
+                continue;
+            }
+            String v[] = s.split("\\|");
+            if (v[1].equals("Gem")) {
+                return null;
+            }
+            int id = Integer.parseInt(v[0]);
+            gems.add(new GemInfo(Data.GemIDMap.get(id), Integer.parseInt(v[2])));
+           // gems.add(Data.GemIDMap.get(id));
+        }
+        return gems;
     }
 
     public static Set<Gem> getInstalledGem(ItemStack is) {

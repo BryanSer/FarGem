@@ -31,7 +31,8 @@ public class GemListener implements Listener {
         return TempDatas.containsKey(p.getName());
     }
 
-    @EventHandler
+    // @EventHandler
+    @Deprecated
     public void onQuit(PlayerQuitEvent evt) {
         if (TempDatas.containsKey(evt.getPlayer().getName())) {
             Tools.GemInfo td = TempDatas.get(evt.getPlayer().getName());
@@ -40,7 +41,8 @@ public class GemListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    // @EventHandler(priority = EventPriority.LOWEST)
+    @Deprecated
     public void onInstall(PlayerInteractEvent evt) {
         if (!TempDatas.containsKey(evt.getPlayer().getName())) {
             return;
@@ -77,7 +79,8 @@ public class GemListener implements Listener {
         evt.getPlayer().sendMessage("§6已成功镶嵌" + gi.getGem().getDisplayName());
     }
 
-    @EventHandler
+    //@EventHandler
+    @Deprecated
     public void onRightClickGem(PlayerInteractEvent evt) {
         if (TempDatas.containsKey(evt.getPlayer().getName())) {
             return;

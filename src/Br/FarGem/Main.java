@@ -6,10 +6,13 @@
  */
 package Br.FarGem;
 
+import Br.API.GUI.Ex.UIManager;
 import Br.API.GUI.MenuManager;
 import Br.API.Log;
 import Br.API.Metrics;
 import Br.API.Utils;
+import Br.FarGem.UI.InstallUI;
+import Br.FarGem.UI.RemoveUI;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -41,6 +44,8 @@ public class Main extends JavaPlugin {
             return Scripts.LoadFromScripts.size();
         }));
         Craft.init();
+        InstallUI.RegisterUI();
+        RemoveUI.RegisterUI();
     }
 
     @Override
@@ -51,14 +56,15 @@ public class Main extends JavaPlugin {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0 && !sender.isOp() && (sender instanceof Player)) {
-            MenuManager.OpenMenu((Player) sender, "FarCraft");
+            UIManager.OpenUI((Player) sender, "FG_IU");
             return true;
         }
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
             return false;
         }
         if (args[0].equalsIgnoreCase("craft") && (sender instanceof Player)) {
-            MenuManager.OpenMenu((Player) sender, "FarCraft");
+            // MenuManager.OpenMenu((Player) sender, "FarCraft");
+            UIManager.OpenUI((Player) sender, "FG_IU");
             return true;
         }
         if (args[0].equalsIgnoreCase("give") && sender.isOp()) {
