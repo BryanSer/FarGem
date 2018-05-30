@@ -214,8 +214,13 @@ public class Tools {
             return level;
         }
 
+        @Override
+        public String toString() {
+            return "GemInfo{" + "gem=" + gem.getName() + ", level=" + level + '}';
+        }
+
     }
-    
+
     public static List<GemInfo> getInstalledGemAndLevel(ItemStack is) {
         if (is == null || !is.hasItemMeta() || !is.getItemMeta().hasLore()) {
             return null;
@@ -232,7 +237,7 @@ public class Tools {
             }
             int id = Integer.parseInt(v[0]);
             gems.add(new GemInfo(Data.GemIDMap.get(id), Integer.parseInt(v[2])));
-           // gems.add(Data.GemIDMap.get(id));
+            // gems.add(Data.GemIDMap.get(id));
         }
         return gems;
     }

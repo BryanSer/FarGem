@@ -13,18 +13,13 @@ import Br.API.GUI.Ex.SnapshotFactory;
 import Br.API.GUI.Ex.UIManager;
 import Br.API.ItemBuilder;
 import Br.API.Utils;
-import Br.FarGem.Data;
-import Br.FarGem.Gem;
 import Br.FarGem.Remover.Type;
 import Br.FarGem.Tools;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.List;
-import java.util.Set;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -34,14 +29,17 @@ import org.bukkit.inventory.meta.ItemMeta;
  * @version 1.0
  */
 public class RemoveUI extends BaseUI {
-    
-    public static void RegisterUI(){
+
+    public static void RegisterUI() {
         UIManager.RegisterUI(new RemoveUI());
     }
 
     protected SnapshotFactory<RemoveUI> Factory;
 
     private Item[] Contains = new Item[18];
+    
+    private static final int ItemSlot = 3;
+    private static final int RemoverSlot = 5;
 
     public RemoveUI() {
         super.Name = "FG_RU";
@@ -53,13 +51,15 @@ public class RemoveUI extends BaseUI {
             Contains[i] = Item.getNewInstance(ItemBuilder.getBuilder(Material.STAINED_GLASS_PANE).name(" ").build());
         }
 
-        Contains[3] = Item.getNewInstance((ItemStack) null)//玩家放武器用的格子
+        Contains[4] = Item.getNewInstance(ItemBuilder.getBuilder(Material.PAPER).name("§6卸除说明").lore("§b←请将要卸除的物品放§l左边", "§a请在§l右边§a放入卸除工具→").build());
+
+        Contains[ItemSlot] = Item.getNewInstance((ItemStack) null)//玩家放武器用的格子
                 .setButtonCellback(p -> true)
-                .setUpadteDisplayLambda((p, s) -> s.getInventory().getItem(3))
+                .setUpadteDisplayLambda((p, s) -> s.getInventory().getItem(ItemSlot))
                 .setUpdate(true);
-        Contains[5] = Item.getNewInstance((ItemStack) null)//玩家放卸除器用的格子
+        Contains[RemoverSlot] = Item.getNewInstance((ItemStack) null)//玩家放卸除器用的格子
                 .setButtonCellback(p -> true)
-                .setUpadteDisplayLambda((p, s) -> s.getInventory().getItem(5))
+                .setUpadteDisplayLambda((p, s) -> s.getInventory().getItem(RemoverSlot))
                 .setUpdate(true);
 
         for (int i = 10; i <= 16; i++) {
@@ -67,10 +67,10 @@ public class RemoveUI extends BaseUI {
             Contains[i] = Item.getNewInstance((ItemStack) null)
                     .setUpadteDisplayLambda((p, s) -> {
                         s.removeData(String.valueOf(slot));
-                        ItemStack is = s.getInventory().getItem(3);
+                        ItemStack is = s.getInventory().getItem(ItemSlot);
                         if (is != null) {
                             List<Tools.GemInfo> gems = Tools.getInstalledGemAndLevel(is);
-                            if (gems.size() <= slot) {
+                            if (gems == null || gems.size() <= slot) {
                                 return null;
                             }
                             Tools.GemInfo g = gems.get(slot);//这个格子表示的宝石
@@ -84,21 +84,21 @@ public class RemoveUI extends BaseUI {
                         Object obj = s.getData(String.valueOf(slot));
                         if (obj != null) { //如果玩家点击的格子里有数据
                             Tools.GemInfo info = (Tools.GemInfo) obj;
-                            ItemStack is = s.getInventory().getItem(5);//移除工具
-                            if (!is.hasItemMeta() || !is.getItemMeta().hasDisplayName()) {
+                            ItemStack is = s.getInventory().getItem(RemoverSlot);//移除工具
+                            if (is == null || !is.hasItemMeta() || !is.getItemMeta().hasDisplayName()) {
                                 return;
                             }
                             String d = is.getItemMeta().getDisplayName();
                             for (Type t : Type.values()) {//移除的种类枚举
                                 if (Tools.decodeColorCode(d).contains(t.getID())) {//说明是移除工具 并且类型是t
                                     if (is.getAmount() == 1) {
-                                        s.getInventory().setItem(5, null);
+                                        s.getInventory().setItem(RemoverSlot, null);
                                     } else {
                                         is = is.clone();
                                         is.setAmount(is.getAmount() - 1);
-                                        s.getInventory().setItem(5, is);
+                                        s.getInventory().setItem(RemoverSlot, is);
                                     }
-                                    ItemStack item = s.getInventory().getItem(3).clone();
+                                    ItemStack item = s.getInventory().getItem(ItemSlot).clone();
                                     ItemMeta im = item.getItemMeta();
                                     List<String> lore = im.getLore();
                                     int remove = -1;
@@ -115,9 +115,9 @@ public class RemoveUI extends BaseUI {
                                     if (remove != -1) {
                                         lore.remove(remove);
                                         im.setLore(lore);
-                                        is.setItemMeta(im);
-                                        ItemStack tar = info.getGem().BeforeUninstall(is, info.getLevel());
-                                        s.getInventory().setItem(3, tar);
+                                        item.setItemMeta(im);
+                                        ItemStack tar = info.getGem().BeforeUninstall(item, info.getLevel());
+                                        s.getInventory().setItem(ItemSlot, tar);
                                         if (t == Type.Uninstall) {
                                             ItemStack gem = info.getGem().getGem(info.getLevel());
                                             Utils.safeGiveItem(p, gem);
@@ -140,6 +140,13 @@ public class RemoveUI extends BaseUI {
     @Override
     public SnapshotFactory getSnapshotFactory() {
         return this.Factory;
+    }
+
+    @Override
+    public void onClose(Player p, Snapshot s) {
+        Inventory inv = s.getInventory();
+        Utils.safeGiveItem(p, inv.getItem(ItemSlot));
+        Utils.safeGiveItem(p, inv.getItem(RemoverSlot));
     }
 
 }

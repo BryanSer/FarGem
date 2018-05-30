@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -64,8 +66,7 @@ public class Remover implements Listener {
 
     private Map<String, ItemStack> Queue = new HashMap<>();
 
-    //@EventHandler(priority = EventPriority.LOWEST)
-    @Deprecated
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onClickEquip(PlayerInteractEvent evt) {
         if (Queue.containsKey(evt.getPlayer().getName())) {
             evt.getPlayer().sendMessage("§c你还有未处理的移除请求");
@@ -159,8 +160,7 @@ public class Remover implements Listener {
         }
     }
 
-    // @EventHandler
-    @Deprecated
+    @EventHandler
     public void onQuit(PlayerQuitEvent evt) {
         Player p = evt.getPlayer();
         ItemStack is = Queue.remove(p.getName());
@@ -174,8 +174,7 @@ public class Remover implements Listener {
         }
     }
 
-    //  @EventHandler(priority = EventPriority.LOW)
-    @Deprecated
+    @EventHandler(priority = EventPriority.LOW)
     public void onInt(PlayerInteractEvent evt) {
         if (!evt.hasItem()) {
             return;

@@ -2,3 +2,6 @@ InstallPrefix:
     #宝石安装在物品上的时候显示的分隔线
     Value: '§6§m§l                       §e§l宝石镶嵌§6§m§l                       '
 DefaultGemMaterial: 388
+#设定安卓宝石的方式
+#有Interact(传统的右键物品) GUI(有UI的镶嵌方式)
+InstallType: GUI

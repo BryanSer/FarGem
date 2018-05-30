@@ -15,10 +15,7 @@ import Br.API.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.logging.Level;
@@ -43,7 +40,7 @@ public class Craft {
     public static Map<ItemStack, Double> Stabilizer = new HashMap<>();
     private static int Minimal;
     private static int MaxLevel;
-    
+
     public static void init() {
         File f = new File(Data.Plugin.getDataFolder(), "craft.yml");
         if (!f.exists()) {
@@ -62,14 +59,14 @@ public class Craft {
         try {
             ConfigurationSection cs = config.getConfigurationSection("Chance");
             for (String key : cs.getKeys(false)) {
-                String s = cs.getString(key);
+                String s = cs.getString(key, "0");
                 Chance.put(key, (a, lv) -> Cal(a, lv, s));
             }
         } catch (Throwable e) {
         }
         Craft.DefaultChance = (a, lv) -> {
             try {
-                return config.getDouble("DefaultChance." + lv + "." + a);
+                return config.getDouble("DefaultChance." + lv + "." + a, 0d);
             } catch (Throwable e) {
                 return 0d;
             }
@@ -80,9 +77,9 @@ public class Craft {
         }
         CreateUI();
     }
-    
+
     private static DecimalFormat DF = new DecimalFormat("##%");
-    
+
     public static void CreateUI() {
         MenuManager.RegisterMenu(Menu.getBuilder()
                 .setName("FarCraft")
@@ -174,7 +171,7 @@ public class Craft {
                         .build())
                 .build());
     }
-    
+
     public static double Cal(int a, int lv, String c) {
         return Calculator.conversion(c.replaceAll("amount", String.valueOf(a)).replaceAll("lv", String.valueOf(lv)));
     }

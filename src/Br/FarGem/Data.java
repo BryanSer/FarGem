@@ -6,16 +6,22 @@
  */
 package Br.FarGem;
 
+import Br.FarGem.InstallManager.InstallType;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 /**
  *
@@ -54,6 +60,7 @@ public class Data {
         LoadIdentifiers();
     }
 
+    
     public static void LoadConfig() {
         if (!Plugin.getDataFolder().exists()) {
             Plugin.saveDefaultConfig();
@@ -70,6 +77,18 @@ public class Data {
                 Data.DefaultGemMaterial = Material.EMERALD;
             }
         }
+        Bukkit.getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onJoin(PlayerJoinEvent evt) {
+                if (config.contains("InstallType")) {
+                    InstallType t = InstallType.valueOf(config.getString("InstallType"));
+                    InstallManager.init(t);
+                } else {
+                    InstallManager.init(InstallType.GUI);
+                }
+                HandlerList.unregisterAll(this);
+            }
+        }, Plugin);
     }
 
     /**

@@ -13,6 +13,7 @@ import Br.API.GUI.Ex.SnapshotFactory;
 import Br.API.GUI.Ex.UIManager;
 import Br.API.GUI.MenuManager;
 import Br.API.ItemBuilder;
+import Br.API.Utils;
 import Br.FarGem.Gem;
 import Br.FarGem.Tools;
 import org.bukkit.Material;
@@ -37,6 +38,10 @@ public class InstallUI extends BaseUI {
     Item Contains[] = new Item[9];
 // 1 0 1 0 1 2 3 1 1
 
+    private static final int ITEM_SLOT = 1;
+    private static final int GEM_SLOT = 3;
+    private static final int RESULT_SLOT = 6;
+
     public InstallUI() {
         super.Name = "FG_IU";
         super.DisplayName = "§b宝石镶嵌";
@@ -48,31 +53,34 @@ public class InstallUI extends BaseUI {
                 .name("§b点击打开宝石合成菜单")
                 .build())
                 .setClick(ClickType.LEFT, (p) -> MenuManager.OpenMenuDelay(p, "FarCraft"));
-        Contains[7] = Item.getNewInstance(ItemBuilder.getBuilder(Material.ENCHANTMENT_TABLE)
+        Contains[7] = Item.getNewInstance(ItemBuilder.getBuilder(Material.IRON_PICKAXE)
                 .name("§b点击打开宝石卸除菜单")
                 .build())
                 .setClick(ClickType.LEFT, (p) -> UIManager.OpenUI(p, "FG_RU"));
         Contains[2] = Contains[4] = Item.getNewInstance(ItemBuilder.getBuilder(Material.STAINED_GLASS_PANE).name("  ").durability((short) 4).build());
-        Contains[1] = Item.getNewInstance((ItemStack) null)
+        Contains[ITEM_SLOT] = Item.getNewInstance((ItemStack) null)
                 .setButtonCellback(p -> true)
                 .setUpadteDisplayLambda((p, s) -> {
                     Inventory inv = s.getInventory();
-                    return inv.getItem(1);
+                    return inv.getItem(ITEM_SLOT);
                 })
                 .setUpdate(true);
-        Contains[3] = Item.getNewInstance((ItemStack) null)
+        Contains[GEM_SLOT] = Item.getNewInstance((ItemStack) null)
                 .setButtonCellback(p -> true)
                 .setUpadteDisplayLambda((p, s) -> {
                     Inventory inv = s.getInventory();
-                    return inv.getItem(3);
+                    return inv.getItem(GEM_SLOT);
                 })
                 .setUpdate(true);
         Contains[5] = Item.getNewInstance(ItemBuilder.getBuilder(Material.EMERALD).name("§b点击镶嵌").build())
                 .setClick(ClickType.LEFT, (p) -> {
                     Snapshot s = super.getSnapshot(p);
                     Inventory inv = s.getInventory();
-                    ItemStack item = inv.getItem(1);
-                    ItemStack gem = inv.getItem(3);
+                    ItemStack item = inv.getItem(ITEM_SLOT);
+                    if (item == null) {
+                        return;
+                    }
+                    ItemStack gem = inv.getItem(GEM_SLOT);
                     Tools.GemInfo gi = Tools.getGemInfo(gem);
                     if (gi == null) {
                         return;
@@ -86,16 +94,19 @@ public class InstallUI extends BaseUI {
                         return;
                     }
                     ItemStack is = g.Install(item.clone(), gi.getLevel());
+                    is = g.BeforeInstall(is, gi.getLevel());
                     if (is != null) {
                         ItemStack iss = Tools.updateItem(is);
-                        inv.setItem(6, iss == null ? is : iss);
-                        inv.setItem(3, null);
-                        inv.setItem(1, null);
+                        inv.setItem(RESULT_SLOT, iss == null ? is : iss);
+                        inv.setItem(GEM_SLOT, null);
+                        inv.setItem(ITEM_SLOT, null);
+                    } else {
+                        p.sendMessage("§c安装失败 请检查该物品是否已达宝石安装上限");
                     }
                 });
-        Contains[6] = Item.getNewInstance((t) -> null).setUpadteDisplayLambda((p, s) -> {
+        Contains[RESULT_SLOT] = Item.getNewInstance((t) -> null).setUpadteDisplayLambda((p, s) -> {
             Inventory inv = s.getInventory();
-            return inv.getItem(6);
+            return inv.getItem(RESULT_SLOT);
         }).setButtonCellback(p -> true);
     }
 
@@ -108,4 +119,13 @@ public class InstallUI extends BaseUI {
     public SnapshotFactory getSnapshotFactory() {
         return this.Factory;
     }
+
+    @Override
+    public void onClose(Player p, Snapshot s) {//1 3 6
+        Inventory inv = s.getInventory();
+        Utils.safeGiveItem(p, inv.getItem(ITEM_SLOT));
+        Utils.safeGiveItem(p, inv.getItem(GEM_SLOT));
+        Utils.safeGiveItem(p, inv.getItem(RESULT_SLOT));
+    }
+
 }
