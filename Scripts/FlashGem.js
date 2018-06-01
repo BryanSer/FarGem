@@ -1,3 +1,5 @@
+/* global Java */
+
 var Enable = true;
 
 var Gem = Java.type('Br.FarGem.Gem');
@@ -85,7 +87,7 @@ var Listener = new ScriptListener(){
             return;
         }
         var level = FlashGem.getEquipLevel(evt.getItem());
-        if (level < 0) {
+        if (level <= 0) {
             return;
         }
         evt.setCancelled(true);
