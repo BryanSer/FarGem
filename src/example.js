@@ -1,6 +1,6 @@
 /* global Java */
 
-var Enable = true;
+var Enable = false;
 
 var Gem = Java.type('Br.FarGem.Gem');
 var GemDisplay = Java.type('Br.FarGem.GemDisplay');
