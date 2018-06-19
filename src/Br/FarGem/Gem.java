@@ -165,17 +165,14 @@ public abstract class Gem implements Listener {
         }
         is = is.clone();
         int max = Tools.MaxInstallFuncion.apply(is);
+        int installed = 0;
         if (max == 0) {
             return null;
         } else if (is.hasItemMeta() && is.getItemMeta().hasLore()) {
-            int installed = 0;
             for (String s : is.getItemMeta().getLore()) {
                 if (s.contains(Tools.encodeColorCode(Tools.IdentifierPrefix))) {
                     installed++;
                 }
-            }
-            if (installed >= max) {
-                return null;
             }
         }
         int SpLine = -1;//分隔线所在的行数
@@ -193,6 +190,9 @@ public abstract class Gem implements Listener {
                 }
                 i++;
             }
+        }
+        if (!replace && installed >= max) {
+            return null;
         }
         if (SpLine == -1) {
             is = Lores.addLores(is, new String[]{

@@ -38,8 +38,8 @@ public class Craft {
     public static BiFunction<Integer, Integer, Double> DefaultChance;
     public static Map<String, BiFunction<Integer, Integer, Double>> Chance = new HashMap<>();
     public static Map<ItemStack, Double> Stabilizer = new HashMap<>();
-    private static int Minimal;
-    private static int MaxLevel;
+    public static int Minimal;
+    public static int MaxLevel;
 
     public static void init() {
         File f = new File(Data.Plugin.getDataFolder(), "craft.yml");
@@ -91,8 +91,8 @@ public class Craft {
                 .setItem(4, Item.getItemBuilder()
                         .setDisplayMethod((p) -> {
                             ItemStack is = p.getInventory().getItemInMainHand().clone();
-                            int amount = is.getAmount();
                             Tools.GemInfo info = Tools.getGemInfo(is);
+                            int amount = is.getAmount();
                             if (info == null || info.getLevel() == info.getGem().getMaxLevel() || info.getLevel() >= Craft.MaxLevel) {
                                 return ItemBuilder.getBuilder(Material.BARRIER)
                                         .name("§c无法合成")

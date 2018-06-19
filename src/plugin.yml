@@ -21,7 +21,7 @@ name: FarGem
 authors: ['Bryan_lzh']
 main: Br.FarGem.Main
 depend: [BrAPI]
-version: 1.5.2
+version: 1.6
 
 commands:
   FarGem:

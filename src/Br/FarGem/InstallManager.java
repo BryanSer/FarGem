@@ -54,11 +54,12 @@ public class InstallManager {
         GUI,
         Customize;
     }
-    
+
     /**
      * 当且仅当在InstallType==Customize时 玩家键入命令/fg会触发本事件
      */
-    public static class CustomizeUIOpenEvent extends Event{
+    public static class CustomizeUIOpenEvent extends Event {
+
         private Player player;
 
         public Player getPlayer() {
@@ -68,9 +69,7 @@ public class InstallManager {
         public CustomizeUIOpenEvent(Player player) {
             this.player = player;
         }
-        
-        
-        
+
         @Override
         public HandlerList getHandlers() {
             return handlers;
@@ -158,8 +157,8 @@ public class InstallManager {
                 Utils.safeGiveItem(evt.getPlayer(), gi.getGem().getGem(gi.getLevel()));
                 return;
             }
-            result = Tools.updateItem(result);
-            evt.getPlayer().getInventory().setItemInMainHand(result);
+            ItemStack t = Tools.updateItem(result);
+            evt.getPlayer().getInventory().setItemInMainHand(t == null ? result : t);
             evt.getPlayer().sendMessage("§6已成功镶嵌" + gi.getGem().getDisplayName());
         }
 
