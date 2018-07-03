@@ -206,6 +206,10 @@ public abstract class Gem implements Listener {
                 if (!this.canReaplce()) {
                     return null;
                 }
+                int oldlv = this.getEquipLevel(is);
+                if (oldlv == level) {
+                    return null;
+                }
                 ItemStack isp = this.onRemove(is, this.getEquipLevel(is));
                 if (isp != null) {
                     is = isp;
